@@ -24,6 +24,7 @@ connectDB();
 
 app.use(helmet({
   contentSecurityPolicy: false,
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
 }));
 
 const limiter = rateLimit({
