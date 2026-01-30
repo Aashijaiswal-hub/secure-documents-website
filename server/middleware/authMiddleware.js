@@ -4,17 +4,10 @@ const User = require('../models/User');
 exports.protect = async (req, res, next) => {
     let token;
 
-    // --- DEBUG LOGGING ---
-    console.log("--- Auth Debug ---");
-    console.log("1. Cookies Received:", req.cookies); 
-    // ---------------------
-
     if (req.cookies && req.cookies.token) {
         token = req.cookies.token;
     }
 
-    // FALLBACK: Check Authorization Header (Bearer Token)
-    // This allows you to manually paste the token in Postman if cookies fail
     if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
         console.log("2. Found token in Header");

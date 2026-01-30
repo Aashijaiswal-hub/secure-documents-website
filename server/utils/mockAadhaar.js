@@ -4,9 +4,6 @@
  * In a real scenario, this would be an external API call to a government endpoint.
  */
 
-// Verhoeff algorithm implementation (simplified for mock validation)
-// For this MVP, we will use a regex and a deterministic mock logic.
-
 exports.verifyAadhaar = (aadhaarNumber) => {
     const aadhaarRegex = /^\d{12}$/;
     if (!aadhaarRegex.test(aadhaarNumber)) {

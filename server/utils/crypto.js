@@ -1,9 +1,8 @@
 const crypto = require('crypto');
 
-// Algorithm Configuration
-const ALGORITHM = 'aes-256-gcm'; // Authenticated Encryption [cite: 85]
-const KEK = Buffer.from(process.env.MSG_ENCRYPTION_MASTER_KEY, 'hex'); // Key Encryption Key
-const IV_LENGTH = 16; // AES block size
+const ALGORITHM = 'aes-256-gcm';
+const KEK = Buffer.from(process.env.MSG_ENCRYPTION_MASTER_KEY, 'hex'); 
+const IV_LENGTH = 16; 
 
 /**
  * 1. WRAP KEY (Encrypt the Data Key)

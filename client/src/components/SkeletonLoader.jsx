@@ -1,5 +1,3 @@
-import { IoFolderOutline } from "react-icons/io5";
-
 const SkeletonLoader = ({ mode }) => {
     if (mode === 'grid') {
         return (
@@ -14,12 +12,11 @@ const SkeletonLoader = ({ mode }) => {
         );
     }
 
-    // Table Mode
     return (
         <div className="w-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-4 border-b border-slate-100 bg-slate-50 flex gap-4">
-                 <div className="h-4 w-4 bg-slate-200 rounded"></div>
-                 <div className="h-4 w-32 bg-slate-200 rounded"></div>
+                <div className="h-4 w-4 bg-slate-200 rounded"></div>
+                <div className="h-4 w-32 bg-slate-200 rounded"></div>
             </div>
             {[...Array(5)].map((_, i) => (
                 <div key={i} className="p-4 border-b border-slate-50 flex items-center gap-4 animate-pulse">

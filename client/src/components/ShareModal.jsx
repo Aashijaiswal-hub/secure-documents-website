@@ -22,7 +22,6 @@ const ShareModal = ({ isOpen, onClose, onShare, docName }) => {
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-                {/* Header */}
                 <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-semibold text-slate-800">Share Securely</h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-red-500 transition">
@@ -30,7 +29,6 @@ const ShareModal = ({ isOpen, onClose, onShare, docName }) => {
                     </button>
                 </div>
 
-                {/* Body */}
                 <div className="p-6">
                     <p className="text-sm text-slate-500 mb-4">
                         Sharing <span className="font-bold text-slate-800">{docName}</span>. 

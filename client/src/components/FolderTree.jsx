@@ -21,7 +21,6 @@ const TreeNode = ({ folder, allFolders, selectedId, onSelect, level = 0 }) => {
                 style={{ paddingLeft: `${level * 16 + 8}px` }} // Indentation
                 onClick={() => onSelect(folder._id)}
             >
-                {/* Toggle Arrow */}
                 <div 
                     className="p-1 rounded-sm hover:bg-slate-200 text-slate-400"
                     onClick={(e) => {
@@ -36,7 +35,6 @@ const TreeNode = ({ folder, allFolders, selectedId, onSelect, level = 0 }) => {
                     )}
                 </div>
 
-                {/* Folder Icon */}
                 {isOpen ? (
                     <HiOutlineFolderOpen  className={cn("h-4 w-4", isSelected ? "text-blue-600" : "text-blue-400")} />
                 ) : (
@@ -46,7 +44,6 @@ const TreeNode = ({ folder, allFolders, selectedId, onSelect, level = 0 }) => {
                 <span>{folder.name}</span>
             </div>
 
-            {/* Recursive Children Rendering */}
             {isOpen && children.map(child => (
                 <TreeNode 
                     key={child._id} 
@@ -78,7 +75,6 @@ const FolderTree = ({ folders, selectedId, onSelect }) => {
                 <span>Home (Root)</span>
             </div>
 
-            {/* Render Tree */}
             {rootFolders.map(folder => (
                 <TreeNode 
                     key={folder._id} 

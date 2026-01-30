@@ -68,5 +68,5 @@ S3 Storage: Migrating from GridFS to AWS S3 for petabyte-scale storage capabilit
 2FA: Adding OTP-based Two-Factor Authentication for logins.s.
 ________________________________________
 ## AUTHOR
-Rudraksha Kumbhkar
+Aashi Jaiswal
 

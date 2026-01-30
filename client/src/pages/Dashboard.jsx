@@ -111,10 +111,8 @@ const Dashboard = () => {
     const handleView = async (id) => {
         try {
             const response = await api.get(`/documents/${id}`, {
-                responseType: 'blob' // Important: Expect binary data
+                responseType: 'blob'
             });
-
-            // Create a blob URL to view in new tab
             const fileURL = window.URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
             window.open(fileURL, '_blank');
         } catch (error) {
@@ -150,7 +148,7 @@ const Dashboard = () => {
 
     const handleNavigateUp = (index) => {
         if (index === -1) {
-            setCurrentFolder(null); // Go to Root
+            setCurrentFolder(null);
             setFolderPath([]);
         } else {
             const newFolder = folderPath[index];
@@ -159,29 +157,26 @@ const Dashboard = () => {
         }
     };
 
-    // Toggle single row
     const toggleSelect = (id) => {
         setSelectedIds(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         );
     };
 
-    // Toggle "Select All"
     const toggleSelectAll = () => {
         if (selectedIds.length === documents.length) {
-            setSelectedIds([]); // Uncheck all
+            setSelectedIds([]); 
         } else {
-            setSelectedIds(documents.map(d => d._id)); // Check all
+            setSelectedIds(documents.map(d => d._id)); 
         }
     };
 
-    // Bulk Delete Handler
     const handleBulkDelete = async () => {
         if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} items?`)) return;
 
         try {
             const toastId = toast.loading("Deleting files...");
-            await api.delete('/documents/bulk/delete', { data: { docIds: selectedIds } }); // Note: DELETE sends data in 'data' key
+            await api.delete('/documents/bulk/delete', { data: { docIds: selectedIds } }); 
             toast.dismiss(toastId);
             toast.success("Files deleted permanently");
 

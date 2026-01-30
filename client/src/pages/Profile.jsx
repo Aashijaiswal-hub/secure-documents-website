@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
 import { toast } from "sonner";
-// import { GoShieldLock } from "react-icons/go";
 import { HiOutlineArrowLeft } from "react-icons/hi";
 import { FaUserCheck, FaHdd, FaFileAlt } from "react-icons/fa";
 import SkeletonLoader from '../components/SkeletonLoader';

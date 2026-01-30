@@ -18,7 +18,7 @@ const folderSchema = new mongoose.Schema({
     path: [{ 
         name: String, 
         id: mongoose.Schema.Types.ObjectId 
-    }], // Breadcrumb trail (Home > Finance > 2023)
+    }],
     createdAt: { 
         type: Date, 
         default: Date.now 

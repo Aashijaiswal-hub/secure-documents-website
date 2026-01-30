@@ -24,9 +24,9 @@ const documentSchema = new mongoose.Schema({
     },
 
     encryption: {
-        iv: { type: String, required: true },       // Initialization Vector
-        authTag: { type: String, required: true },  // Integrity Check
-        wrappedKey: { type: String, required: true } // The Encrypted Key
+        iv: { type: String, required: true },      
+        authTag: { type: String, required: true },
+        wrappedKey: { type: String, required: true }
     },
     folder: {
         type: mongoose.Schema.Types.ObjectId,

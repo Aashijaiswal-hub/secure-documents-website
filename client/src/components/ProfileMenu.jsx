@@ -43,13 +43,11 @@ const ProfileMenu = ({ user, onLogout, onOpenLogs }) => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
-                {/* Menu Items */}
                 <DropdownMenuItem onClick={() => window.location.href = '/profile'} className="cursor-pointer">
                     <FaUserTie className="mr-2 h-4 w-4" />
                     <span>Profile Settings</span>
                 </DropdownMenuItem>
 
-                {/* Only show Audit Logs if passed */}
                 {onOpenLogs && (
                     <DropdownMenuItem onClick={onOpenLogs} className="cursor-pointer">
                         <LuHistory className="mr-2 h-4 w-4" />
