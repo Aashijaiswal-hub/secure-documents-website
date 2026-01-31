@@ -43,7 +43,7 @@ Follow these steps to get the vault running locally.
 * MongoDB URI (Local or Atlas)
 
 ### 2. Installation
-Clone the repository: git clone https://github.com/DataWiseWizard/se-docx.git
+Clone the repository: git clone https://github.com/Aashijaiswal-hub/secure-documents-website
 Install Backend Dependencies: cd server npm install
 Install Frontend Dependencies: cd ../client npm install
 ________________________________________
