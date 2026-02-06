@@ -77,13 +77,14 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/folders', folderRoutes);
 
-app.use('/api', (req, res) => {
-  res.status(404).json({ message: `API Endpoint Not Found: ${req.originalUrl}` });
+// app.use('/api', (req, res) => {
+//   res.status(404).json({ message: `API Endpoint Not Found: ${req.originalUrl}` });
+// });
+
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'client/dist/index.html'));
 });
 
-app.get('/*splat', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
-});
 
 mongoose.connection.once('open', async () => {
   try {
