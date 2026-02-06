@@ -34,97 +34,22 @@ exports.register = async (req, res) => {
             email,
             password,
             aadhaarId,
-            isVerified: false
+            isVerified: true // Auto-verify
         });
-
-        const verificationToken = crypto.randomBytes(20).toString('hex');
-        user.verificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 Hours
-
-        await user.save();
-
-        const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-
-        const message = `
-            <div style="font-family: Arial, sans-serif; padding: 20px;">
-                <h2>Verify Identity</h2>
-                <p>Hello ${fullName},</p>
-                <p>You registered for a Secure Vault account. Please click below to verify your email:</p>
-                <a href="${verifyUrl}" style="background-color: #0F172A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
-                <p style="margin-top: 20px; font-size: 12px; color: #666;">If you did not request this, please ignore this email.</p>
-            </div>
-        `;
-
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Action Required: Verify your Government ID',
-                message
-            });
-
-            // Log Audit
-            logAudit({
-                action: 'REGISTER',
-                actor: user._id,
-                ip: req.ip,
-                status: 'PENDING_VERIFICATION',
-                details: 'User registered, verification email sent'
-            });
-
-            res.status(200).json({
-                success: true,
-                message: `Verification email sent to ${user.email}`
-            });
-
-        } catch (emailError) {
-            await user.deleteOne(); // Rollback user creation
-            console.error("Email sending failed:", emailError);
-            return res.status(500).json({ message: 'Email service failed. Please try again.' });
-        }
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server Error' });
-    }
-};
-
-// @desc    Verify User Email
-// @route   PUT /api/auth/verifyemail/:token
-// @access  Public
-exports.verifyEmail = async (req, res) => {
-    try {
-        const token = crypto
-            .createHash('sha256')
-            .update(req.params.token)
-            .digest('hex');
-
-        const user = await User.findOne({
-            verificationToken: token,
-            verificationTokenExpire: { $gt: Date.now() }
-        });
-
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid or Expired Token' });
-        }
-
-        // Verify User
-        user.isVerified = true;
-        user.verificationToken = undefined;
-        user.verificationTokenExpire = undefined;
 
         await user.save();
 
         // Log Audit
         logAudit({
-            action: 'VERIFY_EMAIL',
+            action: 'REGISTER',
             actor: user._id,
             ip: req.ip,
             status: 'SUCCESS',
-            details: 'Email verification successful'
+            details: 'User registered'
         });
 
-        const jwtToken = generateToken(user._id, user.role);
-        sendTokenResponse(user, jwtToken, res, 200);
+        const token = generateToken(user._id, user.role);
+        sendTokenResponse(user, token, res, 201);
 
     } catch (error) {
         console.error(error);
@@ -144,7 +69,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({ email }).select('+password'); // Ensure password is selected if it's hidden by default
+        const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -155,11 +80,8 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        if (!user.isVerified) {
-            return res.status(401).json({
-                message: 'Email not verified. Please check your inbox.'
-            });
-        }
+        // Removed isVerified check
+
         const token = generateToken(user._id, user.role);
 
         // Log Audit
@@ -211,51 +133,6 @@ const sendTokenResponse = (user, token, res, statusCode) => {
         });
 };
 
-exports.resendVerification = async (req, res) => {
-    try {
-        const { email } = req.body;
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        if (user.isVerified) {
-            return res.status(400).json({ message: 'This account is already verified' });
-        }
-        const verificationToken = crypto.randomBytes(20).toString('hex');
-        user.verificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 Hours
-
-        await user.save();
-
-        const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-        const message = `
-            <div style="font-family: Arial, sans-serif; padding: 20px;">
-                <h2>Verify Identity (Resent)</h2>
-                <p>Hello ${user.fullName},</p>
-                <p>You requested a new verification link. Click below to activate your account:</p>
-                <a href="${verifyUrl}" style="background-color: #0F172A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
-                <p style="margin-top: 20px; font-size: 12px; color: #666;">This link expires in 24 hours.</p>
-            </div>
-        `;
-
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'New Verification Link - Secure Vault',
-                message
-            });
-            res.status(200).json({ message: 'Verification link sent to your email.' });
-        } catch (err) {
-            return res.status(500).json({ message: 'Email could not be sent' });
-        }
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server Error' });
-    }
-};
-
 // @desc    Get User Profile & Stats
 // @route   GET /api/auth/me
 // @access  Private
@@ -264,7 +141,7 @@ exports.getMe = async (req, res) => {
         const user = await User.findById(req.user.id).select('-password');
         const docs = await Document.find({ owner: req.user.id });
         const totalFiles = docs.length;
-        const totalSize = docs.reduce((acc, doc) => acc + doc.size, 0); // Sum of size in bytes
+        const totalSize = docs.reduce((acc, doc) => acc + doc.size, 0);
 
         res.status(200).json({
             user,
@@ -381,11 +258,7 @@ exports.googleLogin = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            if (!user.isVerified) {
-                return res.status(401).json({
-                    message: 'Email not verified. Please check your inbox.'
-                });
-            }
+            // Removed isVerified check
 
             if (!user.googleId) {
                 user.googleId = sub;
@@ -404,6 +277,7 @@ exports.googleLogin = async (req, res) => {
 
             const jwtToken = generateToken(user._id, user.role);
             sendTokenResponse(user, jwtToken, res, 200);
+            return;
         }
 
         user = new User({
@@ -412,50 +286,24 @@ exports.googleLogin = async (req, res) => {
             googleId: sub,
             avatar: picture,
             authProvider: 'google',
-            isVerified: false,
+            isVerified: true, // Auto-verify
             password: null
         });
-        const verificationToken = crypto.randomBytes(20).toString('hex');
-        user.verificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 Hours
 
         await user.save();
 
-        const verifyUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-        const message = `
-            <div style="font-family: Arial, sans-serif; padding: 20px;">
-                <h2>Verify Identity (Google Sign-up)</h2>
-                <p>Hello ${name},</p>
-                <p>You registered using Google. Please click below to complete your account setup:</p>
-                <a href="${verifyUrl}" style="background-color: #0F172A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a>
-                <p style="margin-top: 20px; font-size: 12px; color: #666;">This link expires in 24 hours.</p>
-            </div>
-        `;
+        // Log Audit
+        logAudit({
+            action: 'REGISTER_GOOGLE',
+            actor: user._id,
+            ip: req.ip,
+            status: 'SUCCESS',
+            details: 'New Google user registered'
+        });
 
-        try {
-            await sendEmail({
-                email: user.email,
-                subject: 'Action Required: Verify your Government ID',
-                message
-            });
+        const jwtToken = generateToken(user._id, user.role);
+        sendTokenResponse(user, jwtToken, res, 200);
 
-            logAudit({
-                action: 'REGISTER_GOOGLE',
-                actor: user._id,
-                ip: req.ip,
-                status: 'PENDING_VERIFICATION',
-                details: 'New Google user registered, verification email sent'
-            });
-            res.status(200).json({
-                success: true,
-                message: `Registration successful! Verification email sent to ${email}.`
-            });
-
-        } catch (emailError) {
-            await user.deleteOne(); // Rollback
-            console.error("Email sending failed:", emailError);
-            return res.status(500).json({ message: 'Email service failed. Please try again.' });
-        }
     } catch (error) {
         console.error("GOOGLE AUTH ERROR:", error);
         console.error("Backend Expected ID:", process.env.GOOGLE_CLIENT_ID);

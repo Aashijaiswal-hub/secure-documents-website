@@ -12,7 +12,7 @@ const Register = () => {
         e.preventDefault();
         try {
             await register(formData);
-            navigate('/email-sent');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || 'Registration failed');
         }

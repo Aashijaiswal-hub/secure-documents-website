@@ -9,9 +9,6 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const [resendStatus, setResendStatus] = useState('');
-    const [loadingResend, setLoadingResend] = useState(false);
-
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -35,28 +32,10 @@ const Login = () => {
             if (data.token) {
                 login(data.token, data.user);
                 navigate('/dashboard');
-            } else {
-                setResendStatus(data.message || 'Verification email sent. Please check your inbox.');
-                setError('');
             }
         } catch (error) {
             console.error("Google Login Error:", error);
             setError(error.response?.data?.message || 'Google Login failed');
-        }
-    };
-
-    const handleResendLink = async () => {
-        if (!email) return alert("Please enter your email first");
-
-        try {
-            setLoadingResend(true);
-            await api.post('/auth/resend-verification', { email });
-            setResendStatus('New verification link sent! Check your inbox.');
-            setError('');
-        } catch (err) {
-            alert(err.response?.data?.message || "Failed to resend link");
-        } finally {
-            setLoadingResend(false);
         }
     };
 
@@ -71,21 +50,6 @@ const Login = () => {
                 {error && (
                     <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm flex flex-col gap-2">
                         <span>{error}</span>
-                        {error.includes('verified') && (
-                            <button
-                                onClick={handleResendLink}
-                                disabled={loadingResend}
-                                className="text-xs font-bold underline text-red-800 hover:text-red-900 text-left"
-                            >
-                                {loadingResend ? "Sending..." : "Click here to resend verification link"}
-                            </button>
-                        )}
-                    </div>
-                )}
-
-                {resendStatus && (
-                    <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded text-sm">
-                        {resendStatus}
                     </div>
                 )}
 

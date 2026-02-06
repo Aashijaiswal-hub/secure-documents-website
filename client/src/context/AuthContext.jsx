@@ -40,8 +40,10 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         const { data } = await api.post('/auth/register', userData);
-        setUser(data.user);
-        localStorage.setItem('userInfo', JSON.stringify(data.user));
+        // data contains { success: true, token, user }
+        if (data.token) {
+            login(data.token, data.user);
+        }
     };
 
     const logout = () => {
