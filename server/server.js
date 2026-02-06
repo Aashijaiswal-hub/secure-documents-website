@@ -39,8 +39,7 @@ app.use('/api', limiter);
 
 app.use(cors({
   origin: [process.env.CLIENT_URL,
-    'http://localhost:5173',
-    'https://vault.pinch.site'
+    'http://localhost:5173'
   ],
   credentials: true
 }));
@@ -69,21 +68,20 @@ const logger = winston.createLogger({
 
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
+const distPath = path.join(__dirname, '../client/dist');
+console.log(`Configuring frontend from: ${distPath}`);
+app.use(express.static(distPath));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/folders', folderRoutes);
 
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ message: `API Endpoint Not Found: ${req.originalUrl}` });
+});
 
-const distPath = path.join(__dirname, '../client/dist');
-
-console.log(`Configuring frontend from: ${distPath}`);
-
-app.use(express.static(distPath));
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ message: 'API Endpoint Not Found' });
-  }
+app.get('*', (req, res) => {
   const indexPath = path.join(distPath, 'index.html');
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);

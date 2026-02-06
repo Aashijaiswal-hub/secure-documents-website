@@ -1,13 +1,15 @@
 const express = require('express');
-const { createFolder, getFolderContent, getAllFolders } = require('../controllers/folderController');
 const { protect } = require('../middleware/authMiddleware');
+const { createFolder, getFolderContent, getAllFolders } = require('../controllers/folderController');
 
 const router = express.Router();
 
-router.post('/', protect, createFolder);
+router.use(protect); 
 
-router.get('/all', protect, getAllFolders);
+router.post('/', createFolder);
 
-router.get('/:id', protect, getFolderContent);
+router.get('/all', getAllFolders); 
+
+router.get('/:id', getFolderContent);
 
 module.exports = router;
