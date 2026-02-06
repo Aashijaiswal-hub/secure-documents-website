@@ -81,14 +81,8 @@ app.use('/api', (req, res) => {
   res.status(404).json({ message: `API Endpoint Not Found: ${req.originalUrl}` });
 });
 
-app.get('*', (req, res) => {
-  const indexPath = path.join(distPath, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    console.error(`Frontend build missing at ${indexPath}`);
-    res.status(500).send('Server Error: Frontend build not found. Please check deployment logs.');
-  }
+app.get('/*splat', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
 });
 
 mongoose.connection.once('open', async () => {
