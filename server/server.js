@@ -77,7 +77,7 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/folders', folderRoutes);
 
-app.all('/api/*', (req, res) => {
+app.use('/api', (req, res) => {
   res.status(404).json({ message: `API Endpoint Not Found: ${req.originalUrl}` });
 });
 
