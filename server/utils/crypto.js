@@ -14,6 +14,7 @@ const wrapKey = (dek) => {
     return Buffer.concat([cipher.update(dek), cipher.final()]).toString('hex');
 };
 
+
 /**
  * 2. UNWRAP KEY (Decrypt the Data Key)
  * Recovers the unique file key (DEK) using the Master Key.
