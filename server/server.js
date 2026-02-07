@@ -68,7 +68,7 @@ const logger = winston.createLogger({
 
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
-const distPath = path.join(__dirname, 'client/dist');
+const distPath = path.join(__dirname, '../client/dist');
 console.log(`Configuring frontend from: ${distPath}`);
 app.use(express.static(distPath));
 
@@ -82,7 +82,7 @@ app.use('/api/folders', folderRoutes);
 // });
 
 app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client/dist/index.html'));
+  res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
 });
 
 
