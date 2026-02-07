@@ -1,8 +1,22 @@
 const crypto = require('crypto');
 
 const ALGORITHM = 'aes-256-gcm';
-const KEK = Buffer.from(process.env.MSG_ENCRYPTION_MASTER_KEY, 'hex'); 
-const IV_LENGTH = 16; 
+const IV_LENGTH = 16;
+
+const getMasterKey = () => {
+    const envKey = process.env.MSG_ENCRYPTION_MASTER_KEY;
+    if (!envKey) {
+        console.warn("⚠️ WARNING: MSG_ENCRYPTION_MASTER_KEY is missing. Using a fallback key.");
+        return crypto.createHash('sha256').update('fallback_default_secret_key').digest();
+    }
+
+    if (envKey.length === 64 && /^[0-9a-fA-F]+$/.test(envKey)) {
+        return Buffer.from(envKey, 'hex');
+    }
+    return crypto.createHash('sha256').update(envKey).digest();
+};
+
+const KEK = getMasterKey();
 
 /**
  * 1. WRAP KEY (Encrypt the Data Key)
@@ -56,7 +70,7 @@ exports.decryptBuffer = (encryptedBuffer, ivHex, authTagHex, wrappedKeyHex) => {
     const dek = unwrapKey(wrappedKeyHex);
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');
-    const decipher = crypto.createDecipheriv(ALGORITHM, dek, iv);    
+    const decipher = crypto.createDecipheriv(ALGORITHM, dek, iv);
     decipher.setAuthTag(authTag);
 
     const decryptedBuffer = Buffer.concat([
