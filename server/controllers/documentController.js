@@ -54,8 +54,9 @@ exports.uploadDocument = async (req, res) => {
             // 5. Save Metadata to "Documents" collection
             try {
                 let folderId = req.body.folderId;
-                if (folderId === 'root' || folderId === 'null') folderId = null;
-
+                if (!folderId || folderId === 'root' || folderId === 'null') {
+                    folderId = null;
+                }
                 const newDoc = await Document.create({
                     owner: req.user.id,
                     fileName: req.file.originalname,
@@ -326,8 +327,7 @@ exports.moveDocument = async (req, res) => {
         if (doc.owner.toString() !== req.user.id) {
             return res.status(403).json({ message: 'Not authorized to move this file' });
         }
-        doc.folder = destinationFolderId || null;
-
+        doc.folder = (destinationFolderId && destinationFolderId !== 'root') ? destinationFolderId : null;
         await doc.save();
 
         res.status(200).json({ message: 'Document moved successfully' });
@@ -343,6 +343,8 @@ exports.moveDocument = async (req, res) => {
 exports.bulkMoveDocuments = async (req, res) => {
     try {
         const { docIds, destinationFolderId } = req.body;
+        const folder = (destinationFolderId && destinationFolderId !== 'root') ? destinationFolderId : null;
+
         await Document.updateMany(
             { _id: { $in: docIds }, owner: req.user.id },
             { folder: destinationFolderId || null }
