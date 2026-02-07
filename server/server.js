@@ -68,7 +68,7 @@ const logger = winston.createLogger({
 
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
-const distPath = path.join(__dirname, '../client/dist');
+const distPath = path.join(__dirname, 'client/dist');
 console.log(`Configuring frontend from: ${distPath}`);
 app.use(express.static(distPath));
 
